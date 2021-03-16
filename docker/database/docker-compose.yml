@@ -1,0 +1,29 @@
+version: '3'
+services:
+  postgres:
+    container_name: postgres_container
+    image: "postgres" # use latest official postgres version
+    env_file:
+      - ./env/db.env # configure postgres
+    networks:
+        - db_network
+    volumes:
+      - postgres-db:/var/lib/postgresql/data/ # persist data even if container shuts down
+
+
+  pgadmin_postgres:
+        container_name: pgadmin_container
+        image: dpage/pgadmin4
+        env_file:
+            - ./env/pgadmin.env
+        volumes:
+            - pgadmin:/root/.pgadmin
+        ports:
+            - 8080:80:80
+        networks:
+            - db_network
+        restart: unless-stopped
+
+volumes:
+  postgres-db:
+  pgadmin:
