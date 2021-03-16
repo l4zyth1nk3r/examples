@@ -3,8 +3,10 @@ services:
   postgres:
     container_name: postgres_container
     image: "postgres" # use latest official postgres version
-    env_file:
-      - ./env/db.env # configure postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
     networks:
         - db_network
     volumes:
@@ -12,17 +14,24 @@ services:
 
 
   pgadmin_postgres:
-        container_name: pgadmin_container
-        image: dpage/pgadmin4
-        env_file:
-            - ./env/pgadmin.env
-        volumes:
-            - pgadmin:/root/.pgadmin
-        ports:
-            - 8080:80:80
-        networks:
-            - db_network
-        restart: unless-stopped
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@test.test
+      - PGADMIN_DEFAULT_PASSWORD=secret
+    ports:
+      - 8080:8080
+    networks:
+      - db_network
+    volumes:
+      - pgadmin:/root/.pgadmin
+    restart: unless-stopped
+
+
+networks:
+    db_network:
+        driver: bridge
+
 
 volumes:
   postgres-db:
