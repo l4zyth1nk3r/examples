@@ -7,11 +7,10 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-    networks:
-        - db_network
+    ports:
+      - 5432:5432
     volumes:
       - postgres-db:/var/lib/postgresql/data/ # persist data even if container shuts down
-
 
   pgadmin_postgres:
     container_name: pgadmin_container
@@ -20,17 +19,10 @@ services:
       - PGADMIN_DEFAULT_EMAIL=admin@test.test
       - PGADMIN_DEFAULT_PASSWORD=secret
     ports:
-      - 8080:8080
-    networks:
-      - db_network
+      - 8080:80
     volumes:
       - pgadmin:/root/.pgadmin
     restart: unless-stopped
-
-
-networks:
-    db_network:
-        driver: bridge
 
 
 volumes:
