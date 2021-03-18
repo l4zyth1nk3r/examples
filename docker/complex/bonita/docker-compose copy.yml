@@ -1,19 +1,21 @@
 version: '3'
 
 services:
-    db:
-        container_name: postgres
+    bonita_postgres:
+        container_name: bonita_postgres
         image: postgres
         environment:
-            - POSTGRES_PASSWORD=example
+            - POSTGRES_PASSWORD=bonita
             - PGDATA=/var/lib/postgresql/data/pgdata
         volumes:
             - bonita-db-data:/var/lib/postgresql/data/pgdata
+        networks:
+            - postgres
         restart: unless-stopped
 
 
-    db_admin:
-        container_name: pgadmin
+    pgadmin:
+        container_name: bonita_pgadmin
         image: dpage/pgadmin4
         environment:
             - PGADMIN_DEFAULT_EMAIL=admin@mail.mail
@@ -22,16 +24,18 @@ services:
             - pgadmin:/root/.pgadmin
         ports:
             - 8081:80
+        networks:
+            - postgres
         restart: unless-stopped
 
 
     app:
-        container_name: bonita
+        container_name: bonita_app
         image: bonita
         ports:
             - 8080:8080
         environment:
-            - POSTGRES_ENV_POSTGRES_PASSWORD=example
+            - POSTGRES_ENV_POSTGRES_PASSWORD=bonita
             - DB_VENDOR=postgres
             - DB_HOST=db
             - TENANT_LOGIN=tech_user
@@ -41,6 +45,8 @@ services:
         restart: on-failure:2
         depends_on:
             - db
+        networks:
+            - postgres
         entrypoint:
             - bash
             - -c
@@ -59,6 +65,9 @@ services:
                   exit 1
               fi
               exec /opt/files/startup.sh
+networks:
+    postgres:
+        driver: bridge
 
 volumes:
     pgadmin:
